@@ -43,16 +43,16 @@ func extractClass(lines []string) (string, string, error) {
 	infoLogger.Printf("encountered class: %v\n", cname)
 	lines = lines[1 : len(lines)-1]
 	for i := 0; i < len(lines); i++ {
-		l := lines[i]
-		if l == "public:\r" || l == "private:\r" {
+		l := strings.Trim(lines[i], "\r")
+		if l == "public:" || l == "private:" {
 			hpptext += l + "\n"
 			continue
 		}
-		if l[len(l)-2] == ';' {
+		if l[len(l)-1] == ';' {
 			hpptext += l + "\n"
 			continue
 		}
-		if l[len(l)-2] == '{' {
+		if l[len(l)-1] == '{' {
 			mstart := i
 			mend := i
 			for ; strings.Trim(strings.Trim(lines[mend], "\r"), " ") != "}"; mend++ {
@@ -61,7 +61,7 @@ func extractClass(lines []string) (string, string, error) {
 				}
 			}
 			infoLogger.Printf("extracted method for class %v: %v - %v\n", cname, mstart+1, mend+1)
-			mlines := lines[mstart:mend+1]
+			mlines := lines[mstart : mend+1]
 			hppt, cppt, err := extractMethod(cname, mlines)
 			if err != nil {
 				return "", "", err
@@ -93,9 +93,9 @@ func extractMethod(cname string, lines []string) (string, string, error) {
 		line += w + " "
 	}
 	cpptext += strings.Trim(line, " ") + "\n"
-	for _, l := range lines[1:len(lines)-1] {
+	for _, l := range lines[1 : len(lines)-1] {
 		cpptext += "\t" + strings.Trim(l, " ") + "\n"
 	}
 	cpptext += "}\n\n"
 	return hpptext, cpptext, nil
-} 
+}

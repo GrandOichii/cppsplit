@@ -5,17 +5,17 @@ all: build -run
 
 build:
 	@echo Building app...
-	@go build
+	@go build -o cppsplit
 
 install:
 	@go install
 
 -run:
-	@./cppsplit.exe $(flags)
+	@./cppsplit $(flags)
 
 test: build -run
 	@echo Compiling out files...
-	@g++ tests/test1/main.cpp tests/test1/out/*.cpp
-	@./a.exe
-	@rm a.exe
+	@g++ tests/test1/main.cpp tests/test1/out/*.cpp -o main
+	@./main
+	@rm main
 	@echo Tests ran successfully!
