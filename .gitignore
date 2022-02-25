@@ -1,5 +1,7 @@
 .DS_Store
 .vscode
+cppsplit
+tests/test1/out
 *.txt
 *.exe
 _*
