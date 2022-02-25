@@ -1,7 +1,7 @@
 .DS_Store
 .vscode
 cppsplit
-tests/test1/out
+tests/*/out
 *.txt
 *.exe
 _*
