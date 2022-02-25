@@ -108,7 +108,7 @@ func splitCPPFile(sourcePath string) (string, string, error) {
 			// extract function declaration
 			fstart := i
 			fend := i
-			for ; lines[fend] != "}\r" && lines[fend] != "}"; fend++ {
+			for ; strings.Trim(lines[fend], "\r") != "}"; fend++ {
 				if fend == len(lines)-1 {
 					return "", "", fmt.Errorf("no closing bracket for function (fstart: %v)", fstart)
 				}
@@ -126,7 +126,7 @@ func splitCPPFile(sourcePath string) (string, string, error) {
 		if isClassDeclaration(l) {
 			cstart := i
 			cend := i
-			for ; lines[cend] != "};\r" && lines[cend] != "};"; cend++ {
+			for ; strings.Trim(lines[cend], "\r") != "};"; cend++ {
 				if cend == len(lines)-1 {
 					return "", "", fmt.Errorf("no closing bracket for class (cstart: %v)", cstart)
 				}
