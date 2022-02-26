@@ -31,6 +31,4 @@ testdir:
 	@echo Running out file...
 	@./main
 	@rm main
-	@echo Test ran successfully!
-
 	

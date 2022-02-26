@@ -49,6 +49,10 @@ func checkErr(err error) {
 }
 
 func main() {
+	if len(os.Args) == 1 {
+		fmt.Println("err: cppsplit requires the path to the cpp file")
+		exit()
+	}
 	c := 1
 	for {
 		_, err := ioutil.ReadFile(os.Args[c])
@@ -58,10 +62,6 @@ func main() {
 		c++
 	}
 	files := os.Args[1:c]
-	if len(os.Args) == 1 {
-		fmt.Println("err: cppsplit requires the path to the cpp file")
-		exit()
-	}
 	os.Args = os.Args[c-1:]
 	flag.Parse()
 	if !loggingEnabled {

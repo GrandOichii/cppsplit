@@ -47,7 +47,7 @@ func extractClass(lines []string) (string, string, error) {
 		if len(l) == 0 {
 			continue
 		}
-		if l == "public:" || l == "private:" {
+		if l == "public:" || l == "private:" || l == "protected:" {
 			hpptext += l + "\n"
 			continue
 		}
@@ -79,11 +79,11 @@ func extractClass(lines []string) (string, string, error) {
 }
 
 func extractMethod(cname string, lines []string) (string, string, error) {
-	hpptext := lines[0]
-	ci := strings.LastIndex(hpptext, "{")
-	r := []rune(hpptext)
-	r[ci] = ';'
-	hpptext = string(r[:ci+1]) + "\n"
+	// hpptext := lines[0]
+	// ci := strings.LastIndex(hpptext, "{")
+	// r := []rune(hpptext)
+	// r[ci] = ';'
+	// hpptext = string(r[:ci+1]) + "\n"
 	cpptext := ""
 	words := strings.Split(lines[0], " ")
 	dn := false
@@ -95,7 +95,12 @@ func extractMethod(cname string, lines []string) (string, string, error) {
 		}
 		line += w + " "
 	}
+	i := strings.LastIndex(line, ": ")
+	if i == -1 {
+		i = strings.LastIndex(line, "{")
+	}
 	cpptext += strings.Trim(line, " ") + "\n"
+	hpptext := "\t" + strings.ReplaceAll(strings.Trim(line[:i], " "), cname+"::", "") + ";\n"
 	for _, l := range lines[1 : len(lines)-1] {
 		cpptext += "\t" + strings.Trim(l, " ") + "\n"
 	}
