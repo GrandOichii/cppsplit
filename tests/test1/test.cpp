@@ -13,6 +13,15 @@ void anotherFunc() {
     cout << "Hello" << endl;
 }
 
+struct MyStruct {
+    int value;
+};
+
+MyStruct createMS() {
+    struct MyStruct s;
+    s.value = 1;
+    return s;
+}
 
 class Human {
 private:

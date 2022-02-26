@@ -99,3 +99,16 @@ func extractMethod(cname string, lines []string) (string, string, error) {
 	cpptext += "}\n\n"
 	return hpptext, cpptext, nil
 }
+
+func isStructDeclaration(line string) bool {
+	return strings.HasPrefix(line, "struct")
+}
+
+func extractStruct(lines []string) (string, string, error) {
+	hpptext := ""
+	cpptext := ""
+	for _, l := range lines {
+		hpptext += l + "\n"
+	}
+	return hpptext, cpptext, nil
+}

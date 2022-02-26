@@ -19,6 +19,13 @@ var (
 	infoLogger *log.Logger
 	warningLogger *log.Logger
 	errorLogger *log.Logger
+
+	extMap = map[string][2]string {
+		".hpp": {"hpp", "cpp"},
+		".cpp": {"hpp", "cpp"},
+		".c": {"h", "c"},
+		".h": {"h", "c"},
+	}
 )
 
 func init() {
@@ -63,9 +70,14 @@ func main() {
 	infoLogger.Print("out directory path - " + outPath)
 	cpptext, hpptext, err := splitCPPFile(sourcePath)
 	checkErr(err)
-	p := path.Join(outPath, strings.TrimSuffix(filepath.Base(sourcePath), filepath.Ext(sourcePath)))
-	cppfn := p + ".cpp"
-	hppfn := p + ".hpp"
+	ext := filepath.Ext(sourcePath)
+	p := path.Join(outPath, strings.TrimSuffix(filepath.Base(sourcePath), ext))
+	exts, has := extMap[ext]
+	if !has {
+		panic(fmt.Errorf("can't split file with extension %v", ext))
+	}
+	hppfn := p + "." + exts[0]
+	cppfn := p + "." + exts[1]
 	infoLogger.Printf("parsed lines, header file name: %v, cpp file name: %v", hppfn, cppfn)
 	err = os.WriteFile(cppfn, []byte(cpptext), 0755)
 	checkErr(err)
@@ -74,7 +86,13 @@ func main() {
 }
 
 func splitCPPFile(sourcePath string) (string, string, error) {
-	cpptext := "#include \"" + filepath.Base(strings.TrimSuffix(filepath.Base(sourcePath), filepath.Ext(sourcePath)) + ".hpp") + "\"\n\n"
+	ext := filepath.Ext(sourcePath)
+	exts, has := extMap[ext]
+	hfprefix := exts[0]
+	if !has {
+		return "", "", fmt.Errorf("can't split file of ext %v", ext)
+	}
+	cpptext := "#include \"" + filepath.Base(strings.TrimSuffix(filepath.Base(sourcePath), ext) + "." + hfprefix) + "\"\n\n"
 	hpptext := "#pragma once\n\n"
 	data, err := os.ReadFile(sourcePath)
 	if err != nil {
@@ -140,6 +158,24 @@ func splitCPPFile(sourcePath string) (string, string, error) {
 			hpptext += hppt
 			cpptext += cppt
 			i = cend
+		}
+		if isStructDeclaration(l) {
+			sstart := i
+			send := i
+			for ; !strings.HasPrefix(lines[send], "}"); send++ {
+				if send == len(lines)-1 {
+					return "", "", fmt.Errorf("no closing bracket for struct (sstart: %v)", sstart)
+				}
+			}
+			infoLogger.Printf("extracted struct: %v - %v\n", sstart+1, send+1)
+			clines := lines[sstart:send+1]
+			hppt, cppt, err := extractStruct(clines)
+			if err != nil {
+				return "", "", err
+			}
+			hpptext += hppt
+			cpptext += cppt
+			i = send
 		}
 		i++
 	}

@@ -1,6 +1,9 @@
-flags := tests/test1/test.cpp -out tests/test1/out -log
+testfile := test.*
+testspath := tests
+dirs := $(shell ls $(testspath))
+flags := $(testpath)/test.cpp -out tests/test1/out -log
 
-all: build -run
+all: build
 	@exit
 
 build:
@@ -10,12 +13,24 @@ build:
 install:
 	@go install
 
--run:
-	@./cppsplit $(flags)
+test: build
+	@for f in $(dirs); do $(MAKE) -s testdir tp=${testspath}/$${f}; done
+	@echo All tests run successfully!
 
-test: build -run
+testdir:
+	${eval outpath := ${tp}/out}
+	${eval sff := ${suffix ${shell ls ${tp}/main.c*}}}
+	@echo Testing folder ${tp}
+	@mkdir -p ${outpath}
+	@rm -f ${outpath}/*
+	@echo Running cppsplit 
+	@./cppsplit ${tp}/${testfile} -out ${outpath}
 	@echo Compiling out files...
-	@g++ tests/test1/main.cpp tests/test1/out/*.cpp -o main
+	@if [ ${sff} = ".cpp" ]; then g++ $(tp)/main.cpp $(outpath)/*.cpp -o main; fi
+	@if [ ${sff} = ".c" ]; then gcc $(tp)/main.c $(outpath)/*.c -o main; fi
+	@echo Running out file...
 	@./main
 	@rm main
-	@echo Tests ran successfully!
+	@echo Test ran successfully!
+
+	
