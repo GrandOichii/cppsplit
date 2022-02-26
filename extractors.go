@@ -44,6 +44,9 @@ func extractClass(lines []string) (string, string, error) {
 	lines = lines[1 : len(lines)-1]
 	for i := 0; i < len(lines); i++ {
 		l := strings.Trim(lines[i], "\r")
+		if len(l) == 0 {
+			continue
+		}
 		if l == "public:" || l == "private:" {
 			hpptext += l + "\n"
 			continue

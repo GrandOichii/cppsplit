@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	sourcePattern  string
 	outPath        string
 	loggingEnabled bool
 
@@ -63,7 +62,6 @@ func main() {
 		fmt.Println("err: cppsplit requires the path to the cpp file")
 		exit()
 	}
-	sourcePattern = os.Args[1]
 	os.Args = os.Args[c-1:]
 	flag.Parse()
 	if !loggingEnabled {
@@ -132,7 +130,22 @@ func splitCPPFile(sourcePath string) (string, string, error) {
 		if i >= len(lines) {
 			break
 		}
-		l := lines[i]
+		l := strings.Trim(lines[i], "\r")
+		if strings.HasPrefix(l, "#include") {
+			hpptext += l + "\n"
+			i++
+			continue
+		}
+		if strings.HasPrefix(l, "using ") {
+			hpptext += l + "\n"
+			i++
+			continue
+		}
+		if strings.HasPrefix(l, "class") && strings.HasSuffix(l, ";") {
+			hpptext += l + "\n"
+			i++
+			continue
+		}
 		if isFuncDeclaration(l) {
 			// extract function declaration
 			fstart := i
